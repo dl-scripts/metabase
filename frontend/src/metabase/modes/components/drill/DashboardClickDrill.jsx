@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import { getIn } from "icepick";
 import _ from "underscore";
+import querystring from "querystring";
 
 import Question from "metabase-lib/lib/Question";
 import {
@@ -13,6 +14,7 @@ import {
   formatSourceForTarget,
 } from "metabase/lib/click-behavior";
 import { renderLinkURLForClick } from "metabase/lib/formatting/link";
+import * as Urls from "metabase/lib/urls";
 
 export default ({ question, clicked }) => {
   const settings = (clicked && clicked.settings) || {};
@@ -103,11 +105,17 @@ export default ({ question, clicked }) => {
         }))
         .value();
 
-      const url = targetQuestion.isStructured()
-        ? targetQuestion.getUrlWithParameters(parameters, queryParams)
-        : `${targetQuestion.getUrl()}?${new URLSearchParams(
-            queryParams,
-          ).toString()}`;
+      let url = null;
+
+      if (clickBehavior.use_public_link && targetQuestion.publicUUID()) {
+        url = `${Urls.publicQuestion(
+          targetQuestion.publicUUID(),
+        )}?${querystring.stringify(queryParams)}`;
+      } else {
+        url = targetQuestion.isStructured()
+          ? targetQuestion.getUrlWithParameters(parameters, queryParams)
+          : `${targetQuestion.getUrl()}?${querystring.stringify(queryParams)}`;
+      }
 
       behavior = { url: () => url };
     }

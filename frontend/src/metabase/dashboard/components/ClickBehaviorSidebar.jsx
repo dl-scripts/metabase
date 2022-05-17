@@ -20,6 +20,7 @@ import DashboardPicker from "metabase/containers/DashboardPicker";
 import Questions from "metabase/entities/questions";
 import QuestionPicker from "metabase/containers/QuestionPicker";
 import Sidebar from "metabase/dashboard/components/Sidebar";
+import CheckBox from "metabase/core/components/CheckBox";
 import ClickMappings, {
   withUserAttributes,
   clickTargetObjectType,
@@ -701,6 +702,7 @@ function QuestionDashboardPicker({ dashcard, clickBehavior, updateSettings }) {
   const isDash = clickBehavior.linkType === "dashboard";
   const Entity = isDash ? Dashboards : Questions;
   const Picker = isDash ? DashboardPicker : QuestionPicker;
+  const isPublic = dashcard.card.public_uuid != null;
   return (
     <div>
       <div className="pb1">
@@ -798,6 +800,19 @@ function QuestionDashboardPicker({ dashcard, clickBehavior, updateSettings }) {
                   }[clickTargetObjectType(object)]
                 }
               </Heading>
+              {isPublic && (
+                <CheckBox
+                  className="pb2"
+                  label={t`Use public link`}
+                  checked={clickBehavior.use_public_link}
+                  onChange={e =>
+                    updateSettings({
+                      ...clickBehavior,
+                      use_public_link: e.target.checked,
+                    })
+                  }
+                />
+              )}
               <ClickMappings
                 object={object}
                 dashcard={dashcard}
